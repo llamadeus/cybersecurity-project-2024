@@ -1,0 +1,18 @@
+services:
+  web:
+    image: llamadeus/csp
+    restart: unless-stopped
+    networks:
+      - caddy
+    labels:
+      caddy: csp.deer13.dev
+      caddy.reverse_proxy: "{{upstreams 4321}}"
+    volumes:
+      - /home/amadeus/storage/csp/db:/app/db
+    environment:
+      - PUBLIC_APP_URL=https://csp.deer13.dev
+      - DATABASE_URL=/app/db/prod.db
+
+networks:
+  caddy:
+    external: true

@@ -1,0 +1,28 @@
+# Adjust BUN_VERSION as desired
+ARG BUN_VERSION=1.1.36
+FROM node:20-slim AS base
+
+# Base image
+WORKDIR /app
+ENV NODE_ENV="production"
+
+# Install packages needed to build node modules
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential pkg-config python-is-python3
+
+# Install bun
+RUN npm install -g bun@${BUN_VERSION}
+
+
+FROM base AS build
+
+# Install node modules
+COPY --link package.json bun.lockb ./
+RUN bun install
+
+# Copy application code
+COPY --link drizzle/ ./drizzle/
+COPY --link drizzle.config.ts ./
+
+# Migrate the database
+CMD ["bun", "run", "db", "migrate"]
